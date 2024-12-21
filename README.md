@@ -6,8 +6,10 @@ To begin, click the Start button and select the directory which contains the vid
 The player will collect all supported video files in the chosen directory, shuffle the list and then start playing them, three at a time.
 If playback reaches the end of the list, the list is shuffled again and playback continues from the new start.
 
+Under File/Preferences you can set a default directory to be used when pressing the Start button while holding Ctrl.
+
 You can press F11 to enter fullscreen-mode.
 
-Under File/Preferences you can set a default directory to be used when pressing the Start button while holding Ctrl.
+Press 1, 2, or 3 to switch which videos audio is played.
 
 Exit the program by pressing the ESC key.
