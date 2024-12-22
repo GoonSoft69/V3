@@ -1,0 +1,51 @@
+name: Build macOS Qt Project
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name as needed
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Qt environment (using Homebrew)
+    - name: Install Homebrew
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        brew update
+
+    - name: Install Qt
+      run: |
+        brew install qt
+        echo "$(brew --prefix qt)/bin" >> $GITHUB_PATH
+
+    # Step 3: Build the project using qmake and make
+    - name: Build project
+      run: |
+        mkdir build
+        cd build
+        qmake ../V3.pro
+        make
+
+    # Step 4: Archive the built app (optional)
+    - name: Archive built app
+      run: |
+        mkdir -p output
+        mv build/V3.app output/
+      if: success()
+
+    # Step 5: Upload artifacts (optional)
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: macOS-Build
+        path: output/
