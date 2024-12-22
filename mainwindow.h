@@ -6,13 +6,10 @@
 #include <QMainWindow>
 #include <QFileInfo>
 #include <QMediaPlayer>
-#include <QVideoFrame>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
-class QAudioOutput;
 
 class MainWindow : public QMainWindow
 {
@@ -24,6 +21,8 @@ public:
 
 protected:
     void keyPressEvent (QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private slots:
     void onPushButtonStartClicked ();
@@ -35,6 +34,9 @@ private:
 
     void shuffleInfoList ();
     void next (QMediaPlayer *player);
+
+    void hideCursor();
+    void showCursor();
 
 private:
     Ui::MainWindow *ui;

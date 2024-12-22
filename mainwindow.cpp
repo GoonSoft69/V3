@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QMessageBox>
+#include <QWindow>
 
 #include <random>
 
@@ -76,17 +77,28 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         if (isFullScreen ())
         {
             showNormal ();
-            qApp->restoreOverrideCursor ();
+            ui->menuBar->show();
+            showCursor();
         }
         else
         {
             showFullScreen ();
             ui->menuBar->hide();
+
+            if (m_playerCenter->playbackState() == QMediaPlayer::PlaybackState::PlayingState)
+            {
+                hideCursor();
+            }
         }
     }
     else if (event->key () == Qt::Key::Key_Escape)
     {
+        writePreferences();
         qApp->quit ();
+    }
+    else if (event->key() == Qt::Key::Key_Control)
+    {
+        showCursor();
     }
     else if (event->key () == Qt::Key::Key_1)
     {
@@ -110,6 +122,70 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     QMainWindow::keyPressEvent (event);
 }
 
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key::Key_Control)
+    {
+        if (m_playerCenter->playbackState() == QMediaPlayer::PlaybackState::PlayingState)
+        {
+            hideCursor();
+        }
+    }
+
+    QMainWindow::keyReleaseEvent(event);
+}
+
+void MainWindow::wheelEvent(QWheelEvent *event)
+{
+    qDebug() << event->angleDelta();
+    auto globalPos = event->globalPosition().toPoint();
+    auto localPos = mapFromGlobal(globalPos);
+    auto child = childAt(localPos);
+
+    if (child)
+    {
+        QWidget *container = child;
+
+        while (container && !qobject_cast<QVideoWidget*>(container))
+        {
+            container = container->parentWidget();
+        }
+
+        QVideoWidget *videoWidget = qobject_cast<QVideoWidget*>(container);
+        QAudioOutput *audio = nullptr;
+
+        if (videoWidget)
+        {
+            if (videoWidget == ui->videoLeft)
+            {
+                audio = m_audioLeft;
+            }
+            else if (videoWidget == ui->videoCenter)
+            {
+                audio = m_audioCenter;
+            }
+            else if (videoWidget == ui->videoRight)
+            {
+                audio = m_audioRight;
+            }
+
+            if (audio)
+            {
+                if (event->angleDelta().y() > 0)
+                {
+                    audio->setVolume(audio->volume() + 0.01f);
+                }
+                else
+                {
+                    audio->setVolume(audio->volume() - 0.01f);
+                }
+            }
+        }
+    }
+
+    QMainWindow::wheelEvent(event);
+}
+
 void MainWindow::onPushButtonStartClicked()
 {
     QString dirPath;
@@ -127,8 +203,9 @@ void MainWindow::onPushButtonStartClicked()
     }
     else
     {
+        QStringList videoLocations = QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
         dirPath = QFileDialog::getExistingDirectory (this, "Choose video directory",
-                                                     QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).first());
+                                                    videoLocations.isEmpty() ? "" : videoLocations.first());
 
         if (dirPath.isEmpty ())
         {
@@ -151,7 +228,7 @@ void MainWindow::onPushButtonStartClicked()
     ui->videoCenter->show();
     ui->videoRight->show();
     ui->centralwidget->setStyleSheet("background: black;");
-    qApp->setOverrideCursor (Qt::BlankCursor);
+    hideCursor();
     next (m_playerLeft);
     next (m_playerCenter);
     next (m_playerRight);
@@ -207,7 +284,7 @@ void MainWindow::writePreferences()
 
     if (m_preferencesLocation == None)
     {
-        QMessageBox msgb;
+        QMessageBox msgb(this);
 
         msgb.setIcon(QMessageBox::Icon::Question);
         msgb.setWindowTitle("Select preferences save location");
@@ -220,7 +297,7 @@ void MainWindow::writePreferences()
         msgb.addButton(buttonCancel, QMessageBox::ButtonRole::RejectRole);
         msgb.setDefaultButton(buttonRegistry);
         msgb.setEscapeButton(buttonCancel);
-
+        showCursor();
         msgb.exec();
         auto clicked = msgb.clickedButton();
 
@@ -285,4 +362,16 @@ void MainWindow::next(QMediaPlayer *player)
     player->setSource (m_fileInfoIter->absoluteFilePath ());
     player->play ();
     ++m_fileInfoIter;
+}
+
+void MainWindow::hideCursor()
+{
+    QCursor blank(Qt::BlankCursor);
+
+    setCursor(blank);
+}
+
+void MainWindow::showCursor()
+{
+    unsetCursor();
 }
