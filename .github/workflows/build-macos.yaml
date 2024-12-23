@@ -33,7 +33,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        qmake ../YourProject.pro
+        qmake ../V3.pro
         make
 
     # Step 4: Archive the built app (optional)
