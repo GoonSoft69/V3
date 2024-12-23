@@ -20,20 +20,20 @@ public:
     ~MainWindow();
 
 protected:
-    void keyPressEvent (QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
 private slots:
-    void onPushButtonStartClicked ();
-    void onMediaStatusChanged (QMediaPlayer::MediaStatus status);
+    void onPushButtonStartClicked();
+    void onMediaStatusChanged(QMediaPlayer::MediaStatus status);
 
 private:
     void readPreferencess();
     void writePreferences();
 
-    void shuffleInfoList ();
-    void next (QMediaPlayer *player);
+    void shuffleInfoList();
+    void next(QMediaPlayer *player);
 
     void hideCursor();
     void showCursor();
@@ -51,13 +51,5 @@ private:
     Preferences m_preferences;
     QFileInfoList m_fileInfos;
     QFileInfoList::const_iterator m_fileInfoIter;
-
-    enum PreferencesLocation
-    {
-        None,
-        Registry,
-        AppData
-    }
-    m_preferencesLocation;
 };
 #endif // MAINWINDOW_H
