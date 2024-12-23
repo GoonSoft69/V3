@@ -40,7 +40,7 @@ jobs:
     - name: Run macdeployqt
       run: |
         cd bin
-        macdeployqt V3.app -dmg -appstore 
+        macdeployqt V3.app -dmg 
 
     # Step 5: Upload the DMG as a GitHub Action artifact (optional)
     - name: Upload DMG artifact
