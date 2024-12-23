@@ -33,28 +33,19 @@ jobs:
       run: |
         mkdir build
         cd build
-        qmake ../V3.pro
+        qmake ../YourProject.pro
         make
-        
-    # Step 4: Run macdeployqt to bundle dependencies
-    - name: Run macdeployqt
-      run: |
-        cd bin
-        macdeployqt V3.app -always-overwrite
-        
-    # Step 5: Fix rpath using install_name_tool
-    - name: Fix rpath using install_name_tool
-      run: |
-        install_name_tool -rpath "@rpath" "@loader_path/../Frameworks" bin/V3.app/Contents/MacOS/V3
-    
-    # Step 6: Create DMG disk image
-    - name: Create DMG disk image
-      run: |
-        hdiutil create -volname "V3" -srcfolder bin/V3.app -ov -format UDZO bin/V3.dmg
 
-    # Step 7: Upload the DMG as a GitHub Action artifact (optional)
-    - name: Upload DMG artifact
+    # Step 4: Archive the built app (optional)
+    - name: Archive built app
+      run: |
+        mkdir -p output
+        mv build/V3.app output/
+      if: success()
+
+    # Step 5: Upload artifacts (optional)
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: V3.dmg
-        path: bin/V3.dmg
+        name: macOS-Build
+        path: output/

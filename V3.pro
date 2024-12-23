@@ -10,11 +10,13 @@ VERSION = 0.0.2.1
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG(debug, debug | release) {
-	DESTDIR = $$PWD/bin_debug
-}
-else {
-	DESTDIR = $$PWD/bin
+win32 {
+	CONFIG(debug, debug | release) {
+		DESTDIR = $$PWD/bin_debug
+	}
+	else {
+		DESTDIR = $$PWD/bin
+	}
 }
 
 SOURCES += \
@@ -29,7 +31,7 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui \
-    preferencesdialog.ui
+	preferencesdialog.ui
 
 win32 {
 	include($$PWD/AutoWindeployQt.pri)
