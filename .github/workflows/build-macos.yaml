@@ -42,19 +42,18 @@ jobs:
         run: |
           cd build
           macdeployqt V3.app
-          
+
       - name: Verify Library Paths
         run: |
           otool -L build/V3.app/Contents/MacOS/V3
-
 
       - name: Archive .app Bundle
         run: |
           cd build
           zip -r V3.zip V3.app
-        # Store the artifact
+
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QtAppBundle
           path: build/V3.zip
