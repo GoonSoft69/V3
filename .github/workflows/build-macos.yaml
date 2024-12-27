@@ -1,55 +1,55 @@
-name: Build macOS Qt Project
+name: Build macOS Qt App
 
 on:
   push:
     branches:
-      - main  # Adjust the branch name as needed
-  pull_request:
-    branches:
       - main
+  pull_request:
 
 jobs:
   build:
+    name: Build Qt Application for macOS
     runs-on: macos-latest
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    # Step 2: Set up Qt environment (using Homebrew)
-    - name: Install Homebrew
-      run: |
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew update
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
+          eval "$(/opt/homebrew/bin/brew shellenv)"
 
-    - name: Install Qt
-      run: |
-        brew install qt
-        echo "$(brew --prefix qt)/bin" >> $GITHUB_PATH
+      - name: Install Qt
+        run: |
+          brew install qt
+          echo "Qt installation path: $(brew --prefix qt)"
 
-    # Step 3: Build the project using qmake and make
-    - name: Build project
-      run: |
-        mkdir build
-        cd build
-        qmake ../V3.pro
-        make
-        
-    # Step 4: Run macdeployqt to bundle dependencies
-    - name: Run macdeployqt
-      run: |
-        cd build
-        macdeployqt V3.app -always-overwrite
+      - name: Set Qt Environment Variables
+        run: |
+          echo "export PATH=$(brew --prefix qt)/bin:$PATH" >> $GITHUB_ENV
+          echo "export QTDIR=$(brew --prefix qt)" >> $GITHUB_ENV
 
-    # Step 5: (Optional) Create a DMG disk image for distribution
-    - name: Create DMG disk image
-      run: |
-        hdiutil create -volname "V3" -srcfolder build/V3.app -ov -format UDZO build/V3.dmg
+      - name: Build Project
+        run: |
+          mkdir -p build
+          cd build
+          qmake ../V3.pro
+          make -j$(sysctl -n hw.ncpu)
 
-    # Step 6: Upload the DMG as a GitHub Action artifact (optional)
-    - name: Upload DMG artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: V3.dmg
-        path: build/V3.dmg
+      - name: Create .app Bundle with macdeployqt
+        run: |
+          cd build
+          macdeployqt V3.app
+
+      - name: Archive .app Bundle
+        run: |
+          cd build
+          zip -r V3.zip V3.app
+        # Store the artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: QtAppBundle
+          path: build/V3.zip
