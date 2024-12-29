@@ -38,22 +38,18 @@ jobs:
           qmake ../V3.pro
           make -j$(sysctl -n hw.ncpu)
 
-      - name: Create .app Bundle with macdeployqt
+      - name: Create .dmg with macdeployqt
         run: |
           cd build
-          macdeployqt V3.app
+          macdeployqt V3.app -dmg
 
-      - name: Verify Library Paths
-        run: |
-          otool -L build/V3.app/Contents/MacOS/V3
-
-      - name: Archive .app Bundle
+      - name: Create .dmg with macdeployqt
         run: |
           cd build
-          zip -r V3.zip V3.app
+          macdeployqt V3.app -dmg
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QtAppBundle
-          path: build/V3.zip
+          name: V3DiskImage
+          path: build/V3.dmg
