@@ -24,10 +24,6 @@ jobs:
       - name: Install Qt
         run: |
           brew install qt
-          echo "Qt installation path: $(brew --prefix qt)"
-
-      - name: Set Qt Environment Variables
-        run: |
           echo "export PATH=$(brew --prefix qt)/bin:$PATH" >> $GITHUB_ENV
           echo "export QTDIR=$(brew --prefix qt)" >> $GITHUB_ENV
 
@@ -37,6 +33,12 @@ jobs:
           cd build
           qmake ../V3.pro
           make -j$(sysctl -n hw.ncpu)
+
+      - name: Fix .app Permissions and Sign
+        run: |
+          chmod +x build/V3.app/Contents/MacOS/V3
+          xattr -rd com.apple.quarantine build/V3.app
+          codesign --deep --force --sign - build/V3.app
 
       - name: Create .dmg with macdeployqt
         run: |
