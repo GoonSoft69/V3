@@ -41,7 +41,7 @@ jobs:
       - name: Create .dmg with macdeployqt
         run: |
           cd build
-          macdeployqt V3.app -dmg
+          macdeployqt V3.app -dmg -always-overwrite
 
       - name: Create .dmg with macdeployqt
         run: |
