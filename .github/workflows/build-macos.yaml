@@ -43,11 +43,6 @@ jobs:
           cd build
           macdeployqt V3.app -dmg -always-overwrite
 
-      - name: Create .dmg with macdeployqt
-        run: |
-          cd build
-          macdeployqt V3.app -dmg
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
